@@ -1,0 +1,74 @@
+﻿@model SportEvents.Domain.Models.User.UserGetByIdRequest
+
+@{
+    ViewData["Title"] = "User Page";
+}
+
+@if (ViewData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["Error"]
+    </div>
+}
+
+<div class="col-md-6 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <h4 class="card-title">User Resource</h4>
+            <p class="card-description">
+                Find User By Id
+            </p>
+            <form class="forms-sample" asp-action="Index" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">User ID</label>
+                    <div class="col-sm-9">
+                        <input type="number" required="required" min="1" class="form-control" placeholder="User ID" asp-for="Id">
+                        <span asp-validation-for="Id" class="text-danger"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary me-2">Get User</button>
+                <button class="btn btn-warning m-2" asp-action="Update" asp-controller="Users">Edit</button>
+                <button id="btnDelete" class="btn btn-danger m-2" asp-action="Delete" asp-controller="Users">Delete</button>
+                <a asp-area="" asp-controller="Auth" asp-action="Register" class="text-primary">Create User</a>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="col-md-6 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">User Detail</h4>
+            <p class="card-description">
+                User Info
+            </p>
+            <form class="forms-sample">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input asp-for="Id" type="text" readonly="readonly" class="form-control" placeholder="ID">
+                </div>
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input asp-for="FirstName" type="text" readonly="readonly" class="form-control" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input asp-for="LastName" type="text" readonly="readonly" class="form-control" placeholder="Last Name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input asp-for="Email" type="email" readonly="readonly" class="form-control" placeholder="Email">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

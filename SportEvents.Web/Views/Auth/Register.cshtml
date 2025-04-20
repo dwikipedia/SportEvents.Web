@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "_Login";
+}
+
+@if (ViewData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["Error"]
+    </div>
+}
+
+@model SportEvents.Core.Models.Auth.RegisterRequest
+
+<form asp-action="Register" method="post" class="pt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <input asp-for="Email" type="email" class="form-control form-control-lg" placeholder="Email">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input asp-for="FirstName" type="text" class="form-control form-control-lg" placeholder="First Name">
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input asp-for="LastName" type="text" class="form-control form-control-lg" placeholder="Last Name">
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Password">
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input asp-for="RepeatPassword" type="password" class="form-control form-control-lg" placeholder="Confirm Password">
+        <span asp-validation-for="RepeatPassword" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2">REGISTER</button>
+    <a asp-area="" asp-controller="Auth" asp-action="Login" class="btn btn-light">Cancel</a>
+</form>
