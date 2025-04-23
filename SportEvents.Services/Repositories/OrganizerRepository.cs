@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SportEvents.Domain.Models.Organizer;
-using SportEvents.Domain.Models.User;
 using SportEvents.Domain.Repositories;
-using static SportEvents.Infrastructure.Constants;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net;
+using static SportEvents.Infrastructure.Constants;
 
 namespace SportEvents.Infrastructure.Repositories
 {
@@ -14,7 +13,6 @@ namespace SportEvents.Infrastructure.Repositories
     {
         private readonly HttpClient _httpClient;
         private readonly ITokenProvider _tokenProvider;
-        private readonly string _apiBaseUrl;
         private readonly ILogger<UserRepository> _logger;
 
         public OrganizerRepository(
@@ -25,7 +23,6 @@ namespace SportEvents.Infrastructure.Repositories
         {
             _httpClient = httpClientFactory.CreateClient();
             _tokenProvider = tokenProvider;
-            _apiBaseUrl = config["Api:BaseUrl"];
             _logger = logger;
         }
 
@@ -52,7 +49,7 @@ namespace SportEvents.Infrastructure.Repositories
             }
 
             // Create request with auth header
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{_apiBaseUrl}/{ApiUrl.Organizers}");
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, ApiUrl.Organizers);
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // Send request

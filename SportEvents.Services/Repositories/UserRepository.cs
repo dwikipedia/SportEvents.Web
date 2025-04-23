@@ -1,19 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SportEvents.Core.Models.Exceptions;
 using SportEvents.Core.Models.User;
-using SportEvents.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Net;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using SportEvents.Domain.Models.User;
+using SportEvents.Domain.Repositories;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using static SportEvents.Infrastructure.Constants;
 
 namespace SportEvents.Infrastructure.Repositories
@@ -22,7 +16,6 @@ namespace SportEvents.Infrastructure.Repositories
     {
         private readonly HttpClient _httpClient;
         private readonly ITokenProvider _tokenProvider;
-        private readonly string _apiBaseUrl;
         private readonly ILogger<UserRepository> _logger;
 
         public UserRepository(
@@ -33,7 +26,6 @@ namespace SportEvents.Infrastructure.Repositories
         {
             _httpClient = httpClientFactory.CreateClient();
             _tokenProvider = tokenProvider;
-            _apiBaseUrl = config["Api:BaseUrl"];
             _logger = logger;
         }
 
@@ -43,14 +35,13 @@ namespace SportEvents.Infrastructure.Repositories
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                string message = "User is not authenticated";
-                _logger.LogError("Unauthorized", message);
+                _logger.LogError("Unauthorized", LogMessages.UserNotAuthenticated);
 
-                throw new UnauthorizedAccessException(message);
+                throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
             }
 
             // Create request with auth header
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_apiBaseUrl}/{ApiUrl.Users}/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{ApiUrl.Users}/{id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // Send request
@@ -59,7 +50,7 @@ namespace SportEvents.Infrastructure.Repositories
             // Handle unauthorized (401) specifically
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                throw new Exception("Authentication expired or invalid");
+                throw new Exception(LogMessages.TokenExpiresMessage);
             }
 
             if(response.StatusCode == HttpStatusCode.NotFound)
@@ -74,7 +65,7 @@ namespace SportEvents.Infrastructure.Repositories
         public async Task ChangePassword(int id, ChangePasswordRequest request)
         {
             var response = await _httpClient.PutAsJsonAsync(
-                $"{_apiBaseUrl}/{id}/password",
+                $"{ApiUrl.Users}/{id}/password",
                 new ChangePasswordRequest
                 {
                     NewPassword = request.NewPassword,
@@ -97,7 +88,7 @@ namespace SportEvents.Infrastructure.Repositories
                 }
 
                 throw new ApiException(
-                     "Error occurred when changing password.",
+                     LogMessages.ErrorOccurred,
                      errorResponse.StatusCode,
                      errorResponse.Errors
                  );
@@ -118,14 +109,13 @@ namespace SportEvents.Infrastructure.Repositories
                 string accessToken = _tokenProvider.GetToken();
                 if (string.IsNullOrEmpty(accessToken))
                 {
-                    message = "User is not authenticated";
-                    _logger.LogError("Unauthorized", message);
+                    _logger.LogError("Unauthorized", LogMessages.UserNotAuthenticated);
 
-                    throw new UnauthorizedAccessException(message);
+                    throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
                 }
 
                 // Create request with auth header
-                var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{_apiBaseUrl}/{ApiUrl.Users}/{request.Id}")
+                var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{ApiUrl.Users}/{request.Id}")
                 {
                     Content = JsonContent.Create(getById)
                 };
@@ -138,8 +128,7 @@ namespace SportEvents.Infrastructure.Repositories
                 // Handle unauthorized (401) specifically
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    message = "Authentication expired or invalid";
-                    _logger.LogError("Unauthorized", message);
+                    _logger.LogError("Unauthorized", LogMessages.TokenExpiresMessage);
 
                     throw new Exception(message);
                 }
@@ -163,14 +152,13 @@ namespace SportEvents.Infrastructure.Repositories
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                string message = "User is not authenticated";
-                _logger.LogError("Unauthorize", message);
+                _logger.LogError("Unauthorize", LogMessages.UserNotAuthenticated);
 
-                throw new UnauthorizedAccessException(message);
+                throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
             }
 
             // Create request with auth header
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{_apiBaseUrl}/{ApiUrl.Users}/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{ApiUrl.Users}/{id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // Send request
@@ -179,7 +167,7 @@ namespace SportEvents.Infrastructure.Repositories
             // Handle unauthorized (401) specifically
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                throw new Exception("Authentication expired or invalid");
+                throw new Exception(LogMessages.TokenExpiresMessage);
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
