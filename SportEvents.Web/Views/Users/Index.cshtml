@@ -18,7 +18,9 @@
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     @TempData["SuccessMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             }
 
@@ -26,7 +28,7 @@
             <p class="card-description">
                 Find User By Id
             </p>
-            <form class="forms-sample" asp-action="Index" method="post">
+            <form class="forms-sample" asp-action="Index" method="post" id="mainForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-group row">
@@ -38,8 +40,8 @@
                 </div>
                 <button type="submit" class="btn btn-primary me-2">Get User</button>
                 <button class="btn btn-warning m-2" asp-action="Update" asp-controller="Users">Edit</button>
-                <button id="btnDelete" class="btn btn-danger m-2" asp-action="Delete" asp-controller="Users">Delete</button>
-                <a asp-area="" asp-controller="Auth" asp-action="Register" class="text-primary">Create User</a>
+                <button type="button" id="btnDelete" class="btn btn-danger m-2 confirm" asp-action="Delete" asp-controller="Users">Delete</button>
+                <a type="button" asp-area="" asp-controller="Auth" asp-action="Register" class="btn btn-light m-2">Create User</a>
             </form>
         </div>
     </div>

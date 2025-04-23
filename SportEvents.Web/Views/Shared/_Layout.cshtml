@@ -26,27 +26,6 @@
 </head>
 <body>
     <div class="container-scroller">
-
-        @*   <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SportEvents.Web</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-        aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-        <ul class="navbar-nav flex-grow-1">
-        <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-        </li>
-        <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
-        </li>
-        </ul>
-        </div>
-        </div>
-        </nav> *@
-
         <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
                 <div class="me-3">
@@ -70,28 +49,6 @@
                         <h3 class="welcome-sub-text">Welcome to Sport Events Web App </h3>
                     </li>
                 </ul>
-                @* <ul class="navbar-nav ms-auto">
-                <li class="nav-item dropdown d-none d-lg-block user-dropdown">
-                <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <img class="img-xs rounded-circle" src="images/faces/face8.jpg" alt="Profile image">
-                </a>
-                <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-                <div class="dropdown-header text-center">
-                <img class="img-md rounded-circle" src="images/faces/face8.jpg" alt="Profile image">
-                <p class="mb-1 mt-3 font-weight-semibold">Allen Moreno</p>
-                <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
-                </div>
-                <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile <span class="badge badge-pill badge-danger">1</span></a>
-
-                <a class="dropdown-item" asp-area="" asp-controller="Auth" asp-action="Login">
-                <i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Login
-                </a>
-                <a class="dropdown-item" asp-area="" asp-controller="Auth" asp-action="Logout">
-                <i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Logout
-                </a>
-                </div>
-                </li>
-                </ul> *@
                 <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-bs-toggle="offcanvas">
                     <span class="mdi mdi-menu"></span>
                 </button>
@@ -121,12 +78,6 @@
             </div>
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
-                    @*    <li class="nav-item">
-                    <a class="nav-link" href="index.html">
-                    <i class="mdi mdi-grid-large menu-icon"></i>
-                    <span class="menu-title">Dashboard</span>
-                    </a>
-                    </li> *@
                     <li class="nav-item nav-category">Menu</li>
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
@@ -142,55 +93,7 @@
                             </ul>
                         </div>
                     </li>
-                    @* <li class="nav-item nav-category">Forms and Datas</li>
-                    <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-                    <i class="menu-icon mdi mdi-card-text-outline"></i>
-                    <span class="menu-title">Form elements</span>
-                    <i class="menu-arrow"></i>
-                    </a>
-                    <div class="collapse" id="form-elements">
-                    <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"><a class="nav-link" href="pages/forms/basic_elements.html">Basic Elements</a></li>
-                    </ul>
-                    </div>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
-                    <i class="menu-icon mdi mdi-chart-line"></i>
-                    <span class="menu-title">Charts</span>
-                    <i class="menu-arrow"></i>
-                    </a>
-                    <div class="collapse" id="charts">
-                    <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="pages/charts/chartjs.html">ChartJs</a></li>
-                    </ul>
-                    </div>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
-                    <i class="menu-icon mdi mdi-table"></i>
-                    <span class="menu-title">Tables</span>
-                    <i class="menu-arrow"></i>
-                    </a>
-                    <div class="collapse" id="tables">
-                    <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="pages/tables/basic-table.html">Basic table</a></li>
-                    </ul>
-                    </div>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                    <i class="menu-icon mdi mdi-layers-outline"></i>
-                    <span class="menu-title">Icons</span>
-                    <i class="menu-arrow"></i>
-                    </a>
-                    <div class="collapse" id="icons">
-                    <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="pages/icons/mdi.html">Mdi icons</a></li>
-                    </ul>
-                    </div>
-                    </li> *@
+
                     <li class="nav-item nav-category">pages</li>
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
@@ -203,25 +106,14 @@
                                 @if (User.Identity.IsAuthenticated)
                                 {
                                     <form asp-controller="Auth" asp-action="Logout" method="post">
-                                        <button type="submit" class="btn btn-link">Logout</button>
+                                        <button type="submit" class="btn btn-sm" style="text-decoration:none">
+                                            <i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Logout
+                                        </button>
                                     </form>
-                                }
-                                else
-                                {
-                                    <li class="nav-item show">
-                                        <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Login"> Login </a>
-                                    </li>
                                 }
                             </ul>
                         </div>
                     </li>
-                    @*     <li class="nav-item nav-category">help</li>
-                    <li class="nav-item">
-                    <a class="nav-link" href="http://bootstrapdash.com/demo/star-admin2-free/docs/documentation.html">
-                    <i class="menu-icon mdi mdi-file-document"></i>
-                    <span class="menu-title">Documentation</span>
-                    </a>
-                    </li> *@
                 </ul>
             </nav>
 
@@ -229,14 +121,14 @@
             <div class="main-panel">
                 <div class="content-wrapper">
                     @RenderBody()
-                    @await Html.PartialAsync("_ModalSuccess")
+                    @await Html.PartialAsync("_ModalInfo")
 
                 </div>
 
                 <!-- partial:../../partials/_footer.html -->
                 <footer class="footer">
                     <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/product/star-admin-free/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
                         <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2021. All rights reserved.</span>
                     </div>
                 </footer>
@@ -246,44 +138,14 @@
         <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
-    @* <footer class="border-top footer text-muted">
-    <div class="container">
-    &copy; 2025 - SportEvents.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-    </footer> *@
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - SportEvents.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // Check for success message
-            var successMessage = '@(TempData["SuccessMessage"] ?? "")';
-
-            if (successMessage) {
-                // Set message content
-                $('#successMessage').text(successMessage);
-
-                // Show modal
-                $('#successModal').modal('show');
-
-                setTimeout(function () {
-                    $('#successModal').modal('hide');
-                }, 3000);
-            }
-
-            $("#mainForm").submit(function () {
-                return confirm("Are you sure you want to continue?");
-            });
-
-            $('#btnDelete').click(() => {
-                return confirm("Are you sure you want to delete this data?");
-            })
-        });
-
-
-
-
-    </script>
+    <script src="~/js/site.js"></script>
 
 
     <!-- plugins:js -->
