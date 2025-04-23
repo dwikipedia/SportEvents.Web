@@ -7,11 +7,19 @@
 <div class="col-md-6 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
             <h4 class="card-title">Edit a User</h4>
             <p class="card-description">
                 User Info
             </p>
-            <form class="forms-sample" asp-action="UpdateUser" method="post" id="mainForm">
+            <form class="forms-sample" id="mainForm" asp-controller="Users" asp-action="UpdateUser">
+                @Html.AntiForgeryToken()
+
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <input type="hidden" asp-for="Id" />
@@ -19,17 +27,25 @@
                 <div class="form-group">
                     <label>First Name</label>
                     <input asp-for="FirstName" required type="text" class="form-control" placeholder="First Name">
+                    <input type="hidden" asp-for="FirstName" />
                 </div>
                 <div class="form-group">
                     <label>Last Name</label>
                     <input asp-for="LastName" required type="text" class="form-control" placeholder="Last Name">
+                    <input type="hidden" asp-for="LastName" />
                 </div>
                 <div class="form-group">
                     <label>Email</label>
                     <input asp-for="Email" required type="email" class="form-control" placeholder="Email">
+                    <input type="hidden" asp-for="Email" />
                 </div>
 
-                <button type="submit" class="btn btn-success me-2">Update</button>
+                <button formmethod="post"
+                        asp-action="UpdateUser"
+                        asp-controller="Users"
+                        type="button" id="btnSave" class="btn btn-success me-2 confirm">
+                    Update
+                </button>
                 <a asp-area="" asp-controller="Users" asp-action="Index" class="btn btn-light">Cancel</a>
             </form>
         </div>

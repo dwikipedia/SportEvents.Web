@@ -2,6 +2,7 @@
 using SportEvents.Core.Models.Auth;
 using SportEvents.Core.Models.Exceptions;
 using SportEvents.Domain.Repositories;
+using System;
 using static SportEvents.Web.Constants;
 
 namespace SportEvents.Web.Controllers
@@ -41,6 +42,11 @@ namespace SportEvents.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            if (!string.IsNullOrEmpty(_tokenProvider.GetToken()))
+            {
+                return RedirectToAction("Index", "Users");
+            }
+
             return View(new LoginRequest());
         }
 
