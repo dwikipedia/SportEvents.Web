@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SportEvents.Domain.Models.Organizer;
 using SportEvents.Domain.Repositories;
 using System.Net;
 using System.Net.Http.Headers;
@@ -65,6 +66,11 @@ namespace SportEvents.Infrastructure
             {
                 throw new Exception(LogMessages.TokenExpiresMessage);
             }
+
+            //if (response.StatusCode == HttpStatusCode.NoContent)
+            //{
+            //    return Enumerable.Empty<OrganizerResponse>();
+            //}
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using SportEvents.Domain.Models.Organizer;
 using SportEvents.Domain.Repositories;
 
@@ -18,29 +19,68 @@ namespace SportEvents.Web.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GetAllOrganizers(OrganizersRequest request)
+        [HttpGet]
+        public async Task<IActionResult> GetAll(
+            int draw,
+            int start,
+            int length,
+            string? searchValue,
+            string? orderColumn,
+            string? orderDir)
         {
+            int page = (start / length) + 1;
+            int perPage = length;
+
             try
             {
-                var user = await _orgRepository.GetAllOrganizers(request);
-                if (user == null)
+                var request = new OrganizersRequest
                 {
-                    //_logger.LogWarning("User {UserId} not found", request.Id);
-                    return NotFound();
-                }
-                //_logger.LogInformation($"User id: {request.Id} successfully fetched.");
-
-                return View(user);
+                    Page = page,
+                    PerPage = length,
+                    SearchValue = searchValue,
+                    SortColumn = orderColumn,
+                    SortDirection = orderDir
+                };
+                var paged = await _orgRepository.GetAllOrganizers(request);
+                return Json(new
+                {
+                    draw,
+                    recordsTotal = paged.RecordsTotal,
+                    recordsFiltered = paged.RecordsFiltered,
+                    data = paged.Data
+                });
             }
             catch (Exception ex)
             {
-                string message = ex.Message;
-                ModelState.AddModelError("", message);
-
-                _logger.LogError(ex, message);
-                return View(request);
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, "Internal server error");
             }
+
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> GetAllOrganizers(OrganizersRequest request)
+        //{
+        //    try
+        //    {
+        //        var user = await _orgRepository.GetAllOrganizers(request);
+        //        if (user == null)
+        //        {
+        //            //_logger.LogWarning("User {UserId} not found", request.Id);
+        //            return NotFound();
+        //        }
+        //        //_logger.LogInformation($"User id: {request.Id} successfully fetched.");
+
+        //        return View(user);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string message = ex.Message;
+        //        ModelState.AddModelError("", message);
+
+        //        _logger.LogError(ex, message);
+        //        return View(request);
+        //    }
+        //}
     }
 }

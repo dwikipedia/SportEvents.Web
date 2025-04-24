@@ -1,6 +1,7 @@
 ﻿var lastClickedBtn;
 
 $(document).ready(function () {
+
     window.setTimeout(function () {
         $('.alert-success')
             .fadeTo(500, 0)
@@ -40,6 +41,8 @@ $(document).ready(function () {
             .attr('method', methodType)
             .submit();
     });
+
 });
+
 
 

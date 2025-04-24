@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SportEvents.Core.Models;
 using SportEvents.Domain.Models.Organizer;
 using SportEvents.Domain.Repositories;
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using static SportEvents.Infrastructure.Constants;
@@ -20,6 +23,11 @@ namespace SportEvents.Infrastructure.Repositories
             _apiRequest = apiRequest;
         }
 
+        public int CountOrganizer(IEnumerable<OrganizerResponse> organizers)
+        {
+            return organizers.Count();
+        }
+
         public Task CreateOrganizer(CreateOrganizer organizer)
         {
             throw new NotImplementedException();
@@ -30,10 +38,64 @@ namespace SportEvents.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<OrganizerResponse>> GetAllOrganizers(OrganizersRequest request)
+        public async Task<PagedResponse<OrganizerResponse>> GetAllOrganizers(OrganizersRequest request)
         {
-            var response = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, ApiUrl.Organizers);
-            return await response.Content.ReadFromJsonAsync<List<OrganizerResponse>>();
+            var query = new Dictionary<string, string?>()
+            {
+                ["page"] = request.Page.ToString(),
+                ["perPage"] = request.PerPage.ToString(),
+                ["searchValue"] = string.IsNullOrWhiteSpace(request.SearchValue)
+                             ? null
+                             : request.SearchValue
+            };
+
+            string uriWithQs = QueryHelpers.AddQueryString(ApiUrl.Organizers, query);
+
+            var response = await _apiRequest
+                .GetHttpRequestMessage(HttpMethod.Get, uriWithQs);
+
+            var paged = await response.Content
+                .ReadFromJsonAsync<PagedResponse<OrganizerResponse>>()
+                ?? new PagedResponse<OrganizerResponse>();
+            
+            var items = paged.Data.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(request.SearchValue))
+            {
+                // Case‐insensitive substring match
+                string term = request.SearchValue.Trim();
+                items = items.Where(x =>
+                    x.OrganizerName?.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.SortDirection)
+                && !string.IsNullOrWhiteSpace(request.SortColumn))
+            {
+                bool desc = request.SortDirection.Equals("desc", StringComparison.OrdinalIgnoreCase);
+                items = desc
+                    ? items.OrderByDescending(x => x.Id)
+                    : items.OrderBy(x => x.Id);
+            }
+
+            // Apply paging
+            //var items = await query
+            //    .Skip((req.Page - 1) * req.PerPage)
+            //    .Take(req.PerPage)
+            //    .Select(o => new OrganizerResponse
+            //    {
+            //        Id = o.Id,
+            //        OrganizerName = o.Name,
+            //        ImageLocation = o.ImageUrl
+            //    })
+            //    .ToListAsync();
+
+            var resultList = items.ToList();
+            paged.RecordsTotal = resultList.Count;
+            paged.RecordsFiltered = resultList.Count;
+
+            paged.Data = resultList;
+
+            return paged;
         }
 
         public Task<OrganizerResponse> GetOrganizer()
