@@ -15,50 +15,18 @@ namespace SportEvents.Infrastructure.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly HttpClient _httpClient;
-        private readonly ITokenProvider _tokenProvider;
-        private readonly ILogger<UserRepository> _logger;
+        private readonly ApiRequest _apiRequest;
 
         public UserRepository(
             IHttpClientFactory httpClientFactory,
-            ITokenProvider tokenProvider,
-            IConfiguration config,
-            ILogger<UserRepository> logger)
+            ApiRequest apiRequest)
         {
-            _httpClient = httpClientFactory.CreateClient();
-            _tokenProvider = tokenProvider;
-            _logger = logger;
+            _apiRequest = apiRequest;
         }
 
         public async Task<UserGetByIdRequest> GetUserById(int id)
         {
-            string accessToken = _tokenProvider.GetToken();
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                _logger.LogError("Unauthorized", LogMessages.UserNotAuthenticated);
-
-                throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
-            }
-
-            // Create request with auth header
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{ApiUrl.Users}/{id}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            // Send request
-            var response = await _httpClient.SendAsync(request);
-
-            // Handle unauthorized (401) specifically
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new Exception(LogMessages.TokenExpiresMessage);
-            }
-
-            if(response.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new Exception($"Not found.");
-            }
-
-            response.EnsureSuccessStatusCode();
+            var response = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, $"{ApiUrl.Users}/{id}");
             return await response.Content.ReadFromJsonAsync<UserGetByIdRequest>();
         }
 
@@ -106,76 +74,13 @@ namespace SportEvents.Infrastructure.Repositories
                 getById.LastName = request.LastName;
                 getById.Email = request.Email;
 
-                string accessToken = _tokenProvider.GetToken();
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    _logger.LogError("Unauthorized", LogMessages.UserNotAuthenticated);
-
-                    throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
-                }
-
-                // Create request with auth header
-                var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{ApiUrl.Users}/{request.Id}")
-                {
-                    Content = JsonContent.Create(getById)
-                };
-                
-                httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Send request
-                var response = await _httpClient.SendAsync(httpRequest);
-
-                // Handle unauthorized (401) specifically
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    _logger.LogError("Unauthorized", LogMessages.TokenExpiresMessage);
-
-                    throw new Exception(message);
-                }
-
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    message = "Not found.";
-                    _logger.LogError(message, message);
-
-                    throw new Exception(message);
-                }
-
-                response.EnsureSuccessStatusCode();
-
+                await _apiRequest.GetHttpRequestMessage(HttpMethod.Put, $"{ApiUrl.Users}/{request.Id}", getById);
             }
         }
 
         public async Task DeleteUserById(int id)
         {
-            string accessToken = _tokenProvider.GetToken();
-
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                _logger.LogError("Unauthorize", LogMessages.UserNotAuthenticated);
-
-                throw new UnauthorizedAccessException(LogMessages.UserNotAuthenticated);
-            }
-
-            // Create request with auth header
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{ApiUrl.Users}/{id}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            // Send request
-            var response = await _httpClient.SendAsync(request);
-
-            // Handle unauthorized (401) specifically
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new Exception(LogMessages.TokenExpiresMessage);
-            }
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new Exception($"Not found.");
-            }
-
-            response.EnsureSuccessStatusCode();
+            await _apiRequest.GetHttpRequestMessage(HttpMethod.Delete, $"{ApiUrl.Users}/{id}");
         }
     }
 }
