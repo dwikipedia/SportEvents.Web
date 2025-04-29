@@ -43,10 +43,7 @@ namespace SportEvents.Infrastructure.Repositories
             var query = new Dictionary<string, string?>()
             {
                 ["page"] = request.Page.ToString(),
-                ["perPage"] = request.PerPage.ToString(),
-                ["searchValue"] = string.IsNullOrWhiteSpace(request.SearchValue)
-                             ? null
-                             : request.SearchValue
+                ["perPage"] = request.PerPage.ToString()
             };
 
             string uriWithQs = QueryHelpers.AddQueryString(ApiUrl.Organizers, query);
@@ -59,6 +56,7 @@ namespace SportEvents.Infrastructure.Repositories
                 ?? new PagedResponse<OrganizerResponse>();
             
             var items = paged.Data.AsEnumerable();
+
             if (!string.IsNullOrWhiteSpace(request.SearchValue))
             {
                 // Case‐insensitive substring match
@@ -77,20 +75,8 @@ namespace SportEvents.Infrastructure.Repositories
                     : items.OrderBy(x => x.Id);
             }
 
-            // Apply paging
-            //var items = await query
-            //    .Skip((req.Page - 1) * req.PerPage)
-            //    .Take(req.PerPage)
-            //    .Select(o => new OrganizerResponse
-            //    {
-            //        Id = o.Id,
-            //        OrganizerName = o.Name,
-            //        ImageLocation = o.ImageUrl
-            //    })
-            //    .ToListAsync();
-
             var resultList = items.ToList();
-            paged.RecordsTotal = resultList.Count;
+            paged.RecordsTotal = paged.Meta.Pagination.Total;
             paged.RecordsFiltered = resultList.Count;
 
             paged.Data = resultList;

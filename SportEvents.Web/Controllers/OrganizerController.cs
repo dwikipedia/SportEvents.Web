@@ -28,11 +28,9 @@ namespace SportEvents.Web.Controllers
             string? orderColumn,
             string? orderDir)
         {
-            int page = (start / length) + 1;
-            int perPage = length;
-
             try
             {
+                int page = (start / length) + 1;
                 var request = new OrganizersRequest
                 {
                     Page = page,

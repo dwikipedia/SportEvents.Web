@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SportEvents.Core.Models
 {
-    public class BaseEntity 
+    public class BaseEntity
     {
         public int Id { get; set; }
         [Required]
@@ -38,5 +38,37 @@ namespace SportEvents.Core.Models
 
         [JsonPropertyName("data")]
         public List<T> Data { get; set; } = new();
+
+        [JsonPropertyName("meta")]
+        public MetaResponse Meta { get; set; }
+    }
+
+    public class MetaResponse
+    {
+        public Pagination Pagination { get; set; }
+    }
+
+    public class Pagination
+    {
+        public int Total { get; set; }
+        public int Count { get; set; }
+
+        [JsonPropertyName("per_page")]
+        public int PerPage { get; set; }
+
+        [JsonPropertyName("current_page")]
+        public int CurrentPage { get; set; }
+
+        [JsonPropertyName("total_pages")]
+        public int TotalPages { get; set; }
+
+        public Links Links { get; set; }
+
+    }
+
+    public class Links
+    {
+        public string Previous { get; set; }
+        public string Next { get; set; }
     }
 }
