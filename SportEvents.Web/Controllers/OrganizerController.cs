@@ -11,7 +11,6 @@ namespace SportEvents.Web.Controllers
         ILogger<OrganizerController> logger) : Controller
     {
         private readonly IOrganizerRepository _orgRepository = orgRepository;
-        private readonly ITokenProvider _tokenProvider = tokenProvider;
         private readonly ILogger<OrganizerController> _logger = logger;
 
         public IActionResult Index()
@@ -24,19 +23,22 @@ namespace SportEvents.Web.Controllers
             int draw,
             int start,
             int length,
-            string? searchValue,
-            string? orderColumn,
-            string? orderDir)
+            [FromQuery(Name = "search[value]")] string searchValue,
+            [FromQuery(Name = "order[0][column]")] int orderColumn,
+            [FromQuery(Name = "order[0][dir]")] string orderDir)
         {
             try
             {
-                int page = (start / length) + 1;
+                string[] columnNames = { "id", "organizerName", "imageLocation" };
+                string sortColumn = columnNames[orderColumn];
+                int pageNumber = (start / length) + 1;
+
                 var request = new OrganizersRequest
                 {
-                    Page = page,
+                    Page = pageNumber,
                     PerPage = length,
                     SearchValue = searchValue,
-                    SortColumn = orderColumn,
+                    SortColumn = sortColumn,
                     SortDirection = orderDir
                 };
                 var paged = await _orgRepository.GetAllOrganizers(request);

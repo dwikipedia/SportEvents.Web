@@ -21,8 +21,8 @@ namespace SportEvents.Core.Models
 
     public class BaseEntityPaging
     {
-        public int Page { get; set; } = 50;
-        public int PerPage { get; set; } = 10;
+        public int Page { get; set; }
+        public int PerPage { get; set; } 
         public string SearchValue { get; set; }
         public string SortDirection { get; set; }
         public string SortColumn { get; set; }

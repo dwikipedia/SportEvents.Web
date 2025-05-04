@@ -40,48 +40,71 @@ namespace SportEvents.Infrastructure.Repositories
 
         public async Task<PagedResponse<OrganizerResponse>> GetAllOrganizers(OrganizersRequest request)
         {
-            var query = new Dictionary<string, string?>()
+            // 1. Fetch the FIRST PAGE to get total record count
+            var initialQuery = new Dictionary<string, string?>()
             {
-                ["page"] = request.Page.ToString(),
-                ["perPage"] = request.PerPage.ToString()
+                ["page"] = "1",
+                ["perPage"] = "1" // Minimal data to get pagination metadata
             };
 
-            string uriWithQs = QueryHelpers.AddQueryString(ApiUrl.Organizers, query);
+            string initialUri = QueryHelpers.AddQueryString(ApiUrl.Organizers, initialQuery);
+            var initialResponse = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, initialUri);
+            var initialPaged = await initialResponse.Content.ReadFromJsonAsync<PagedResponse<OrganizerResponse>>();
 
-            var response = await _apiRequest
-                .GetHttpRequestMessage(HttpMethod.Get, uriWithQs);
+            int totalRecords = initialPaged.Meta.Pagination.Total;
+            int maxPerPage = 1000; // Use the maximum allowed by the external API
 
-            var paged = await response.Content
-                .ReadFromJsonAsync<PagedResponse<OrganizerResponse>>()
-                ?? new PagedResponse<OrganizerResponse>();
-            
-            var items = paged.Data.AsEnumerable();
+            // 2. Calculate how many pages we need to fetch
+            int totalPages = (int)Math.Ceiling((double)totalRecords / maxPerPage);
 
+            // 3. Fetch ALL pages from the external API
+            var allData = new List<OrganizerResponse>();
+            for (int page = 1; page <= totalPages; page++)
+            {
+                var query = new Dictionary<string, string?>()
+                {
+                    ["page"] = page.ToString(),
+                    ["perPage"] = maxPerPage.ToString()
+                };
+
+                string uri = QueryHelpers.AddQueryString(ApiUrl.Organizers, query);
+                var response = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, uri);
+                var paged = await response.Content.ReadFromJsonAsync<PagedResponse<OrganizerResponse>>();
+                allData.AddRange(paged.Data);
+            }
+
+            // 4. Now work with the complete dataset
+            var queryableData = allData.AsQueryable();
+
+            // Apply search filter
             if (!string.IsNullOrWhiteSpace(request.SearchValue))
             {
-                // Case‐insensitive substring match
-                string term = request.SearchValue.Trim();
-                items = items.Where(x =>
-                    x.OrganizerName?.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                queryableData = queryableData.Where(x =>
+                    x.OrganizerName.Contains(request.SearchValue, StringComparison.OrdinalIgnoreCase)
                 );
             }
 
-            if (!string.IsNullOrWhiteSpace(request.SortDirection)
-                && !string.IsNullOrWhiteSpace(request.SortColumn))
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(request.SortColumn))
             {
-                bool desc = request.SortDirection.Equals("desc", StringComparison.OrdinalIgnoreCase);
-                items = desc
-                    ? items.OrderByDescending(x => x.Id)
-                    : items.OrderBy(x => x.Id);
+                queryableData = request.SortDirection == "desc"
+                    ? queryableData.OrderByDescending(x => x.Id)
+                    : queryableData.OrderBy(x => x.Id);
             }
 
-            var resultList = items.ToList();
-            paged.RecordsTotal = paged.Meta.Pagination.Total;
-            paged.RecordsFiltered = resultList.Count;
+            // Paginate the filtered/sorted data
+            var pagedData = queryableData
+                .Skip((request.Page - 1) * request.PerPage)
+                .Take(request.PerPage)
+                .ToList();
 
-            paged.Data = resultList;
-
-            return paged;
+            return new PagedResponse<OrganizerResponse>
+            {
+                Data = pagedData,
+                Meta = initialPaged.Meta,
+                RecordsTotal = totalRecords,
+                RecordsFiltered = queryableData.Count() // Total after filtering
+            };
         }
 
         public Task<OrganizerResponse> GetOrganizer()
