@@ -17,7 +17,6 @@ namespace SportEvents.Infrastructure.Repositories
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _apiBaseUrl;
 
         public AuthRepository(
             HttpClient httpClient,
@@ -26,14 +25,13 @@ namespace SportEvents.Infrastructure.Repositories
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
-            _apiBaseUrl = config["Api:BaseUrl"];
         }
 
         public async Task RegisterAsync(RegisterRequest request)
         {
 
             var response = await _httpClient.PostAsJsonAsync(
-                $"{_apiBaseUrl}/{ApiUrl.Users}",
+                ApiUrl.Users,
                 request
             );
 
@@ -112,7 +110,7 @@ namespace SportEvents.Infrastructure.Repositories
         private async Task<AuthResult> AuthenticateWithApi(LoginRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync(
-                $"{_apiBaseUrl}/{ApiUrl.UsersLogin}",
+                ApiUrl.UsersLogin,
                 new
                 {
                     email = request.Email,

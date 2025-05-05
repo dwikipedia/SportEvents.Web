@@ -16,8 +16,4 @@
     <ProjectReference Include="..\SportEvents.Services\SportEvents.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Organizer\" />
-  </ItemGroup>
-
 </Project>

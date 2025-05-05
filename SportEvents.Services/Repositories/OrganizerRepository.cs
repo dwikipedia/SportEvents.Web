@@ -1,32 +1,31 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SportEvents.Core.Models;
 using SportEvents.Domain.Models.Organizer;
-using SportEvents.Domain.Models.User;
 using SportEvents.Domain.Repositories;
-using static SportEvents.Infrastructure.Constants;
+using System;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net;
+using static SportEvents.Infrastructure.Constants;
 
 namespace SportEvents.Infrastructure.Repositories
 {
     public class OrganizerRepository : IOrganizerRepository
     {
-        private readonly HttpClient _httpClient;
-        private readonly ITokenProvider _tokenProvider;
-        private readonly string _apiBaseUrl;
-        private readonly ILogger<UserRepository> _logger;
+        private readonly ApiRequest _apiRequest;
 
         public OrganizerRepository(
-            IHttpClientFactory httpClientFactory,
-            ITokenProvider tokenProvider,
-            IConfiguration config,
-            ILogger<UserRepository> logger)
+            ApiRequest apiRequest)
         {
-            _httpClient = httpClientFactory.CreateClient();
-            _tokenProvider = tokenProvider;
-            _apiBaseUrl = config["Api:BaseUrl"];
-            _logger = logger;
+            _apiRequest = apiRequest;
+        }
+
+        public int CountOrganizer(IEnumerable<OrganizerResponse> organizers)
+        {
+            return organizers.Count();
         }
 
         public Task CreateOrganizer(CreateOrganizer organizer)
@@ -39,38 +38,73 @@ namespace SportEvents.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<OrganizerResponse>> GetAllOrganizers(OrganizersRequest request)
+        public async Task<PagedResponse<OrganizerResponse>> GetAllOrganizers(OrganizersRequest request)
         {
-            string accessToken = _tokenProvider.GetToken();
-
-            if (string.IsNullOrEmpty(accessToken))
+            // 1. Fetch the FIRST PAGE to get total record count
+            var initialQuery = new Dictionary<string, string?>()
             {
-                string message = "User is not authenticated";
-                _logger.LogError("Unauthorized", message);
+                ["page"] = "1",
+                ["perPage"] = "1" // Minimal data to get pagination metadata
+            };
 
-                throw new UnauthorizedAccessException(message);
+            string initialUri = QueryHelpers.AddQueryString(ApiUrl.Organizers, initialQuery);
+            var initialResponse = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, initialUri);
+            var initialPaged = await initialResponse.Content.ReadFromJsonAsync<PagedResponse<OrganizerResponse>>();
+
+            int totalRecords = initialPaged.Meta.Pagination.Total;
+            int maxPerPage = 1000; // Use the maximum allowed by the external API
+
+            // 2. Calculate how many pages we need to fetch
+            int totalPages = (int)Math.Ceiling((double)totalRecords / maxPerPage);
+
+            // 3. Fetch ALL pages from the external API
+            var allData = new List<OrganizerResponse>();
+            for (int page = 1; page <= totalPages; page++)
+            {
+                var query = new Dictionary<string, string?>()
+                {
+                    ["page"] = page.ToString(),
+                    ["perPage"] = maxPerPage.ToString()
+                };
+
+                string uri = QueryHelpers.AddQueryString(ApiUrl.Organizers, query);
+                var response = await _apiRequest.GetHttpRequestMessage(HttpMethod.Get, uri);
+                var paged = await response.Content.ReadFromJsonAsync<PagedResponse<OrganizerResponse>>();
+                allData.AddRange(paged.Data);
             }
 
-            // Create request with auth header
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{_apiBaseUrl}/{ApiUrl.Organizers}");
-            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            // 4. Now work with the complete dataset
+            var queryableData = allData.AsQueryable();
 
-            // Send request
-            var response = await _httpClient.SendAsync(httpRequest);
-
-            // Handle unauthorized (401) specifically
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(request.SearchValue))
             {
-                throw new Exception("Authentication expired or invalid");
+                queryableData = queryableData.Where(x =>
+                    x.OrganizerName.Contains(request.SearchValue, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(request.SortColumn))
             {
-                throw new Exception($"Not found.");
+                queryableData = request.SortDirection == "desc"
+                    ? queryableData.OrderByDescending(x => x.Id)
+                    : queryableData.OrderBy(x => x.Id);
             }
 
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<OrganizerResponse>>();
+            // Paginate the filtered/sorted data
+            var pagedData = queryableData
+                .Skip((request.Page - 1) * request.PerPage)
+                .Take(request.PerPage)
+                .ToList();
+
+            return new PagedResponse<OrganizerResponse>
+            {
+                Data = pagedData,
+                Meta = initialPaged.Meta,
+                RecordsTotal = totalRecords,
+                RecordsFiltered = queryableData.Count() // Total after filtering
+            };
         }
 
         public Task<OrganizerResponse> GetOrganizer()

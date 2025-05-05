@@ -3,8 +3,13 @@ using Microsoft.Extensions.Logging;
 using SportEvents.Domain.Repositories;
 using NetEscapades.Extensions.Logging.RollingFile;
 using SportEvents.Infrastructure.Repositories;
+using static SportEvents.Web.Constants;
+using static SportEvents.Infrastructure.Constants;
+using SportEvents.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+AppConfig.Configuration = builder.Configuration;
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -16,7 +21,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<ApiRequest>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
